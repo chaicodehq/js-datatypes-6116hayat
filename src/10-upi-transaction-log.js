@@ -48,4 +48,84 @@
  */
 export function analyzeUPITransactions(transactions) {
   // Your code here
+
+  if (!Array.isArray(transactions) || transactions.length === 0) return null;
+
+  const validTransaction = transactions.filter(trx => {
+    const validAmount =
+      typeof trx.amount === "number" &&
+      Number.isFinite(trx.amount) &&
+      trx.amount > 0;
+
+    const validType =
+      trx.type === "credit" || trx.type === "debit";
+
+    return validAmount && validType;
+  });
+
+  if (validTransaction.length === 0) {
+    return null;
+  }
+
+
+  const totals = validTransaction.reduce(
+    (acc, trx) => {
+      if (trx.type === "credit") {
+        acc.totalCredit += trx.amount;
+      } else {
+        acc.totalDebit += trx.amount;
+      }
+      return acc;
+    },
+    { totalCredit: 0, totalDebit: 0 }
+  );
+
+  const totalCredit = totals.totalCredit;
+  const totalDebit = totals.totalDebit;
+
+
+  const netBalance = totalCredit - totalDebit;
+
+  const transactionCount = validTransaction.length;
+
+  const avgTransaction = Math.round(
+    (totalCredit + totalDebit) / transactionCount
+  );
+
+  const highestTransaction = validTransaction.reduce((max, trx) =>
+    trx.amount > max.amount ? trx : max
+  );
+
+
+  const categoryBreakdown = validTransaction.reduce((acc, trx) => {
+    acc[trx.category] = (acc[trx.category] || 0) + trx.amount;
+    return acc;
+  }, {});
+
+  const frequency = {};
+  let frequentContact = "";
+  let maxCount = 0;
+
+  for (const trx of validTransaction) {
+    frequency[trx.to] = (frequency[trx.to] || 0) + 1;
+
+    if (frequency[trx.to] > maxCount) {
+      maxCount = frequency[trx.to];
+      frequentContact = trx.to;
+    }
+  }
+
+
+  const allAbove100 = validTransaction.every(
+    trx => trx.amount > 100
+  );
+
+
+  const hasLargeTransaction = validTransaction.some(
+    trx => trx.amount >= 5000
+  );
+
+  return {
+    totalCredit, totalDebit, netBalance, transactionCount, avgTransaction, highestTransaction, categoryBreakdown, frequentContact, allAbove100, hasLargeTransaction
+  };
 }

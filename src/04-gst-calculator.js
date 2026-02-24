@@ -40,4 +40,69 @@
  */
 export function calculateGST(amount, category) {
   // Your code here
+
+  if (!Number.isFinite(amount) || amount <= 0 || typeof amount !== "number" || typeof category !== "string") {
+    return null
+  }
+
+  let gstRate;
+
+  category = category.toLowerCase();
+
+  switch (category) {
+    case "essential":
+      gstRate = 0;
+      break;
+
+    case "food":
+      gstRate = 5
+      break;
+
+    case "standard":
+      gstRate = 12
+      break;
+
+    case "electronics":
+      gstRate = 18
+      break;
+
+    case "luxury":
+      gstRate = 28
+      break;
+
+    default:
+      return null;
+  }
+
+  let gstAmount = parseFloat((amount * gstRate / 100).toFixed(2));
+
+  let totalAmount = amount + gstAmount;
+
+  return {
+    baseAmount: amount,
+    gstRate,
+    gstAmount,
+    totalAmount
+  }
 }
+
+/*
+Logic 
+
+
+// rule 
+positive finite number nhi hai => null 
+category string nhi hai => null
+category unknown hai => null
+
+// switch(category)
+1. essential => 0
+2. food => 5
+3. standard => 12
+4. electronics => 18
+5. luxury => 28
+
+gst amount => parseFloat((amount * rate / 100).toFixed(2))
+
+total amount => amount + gstAmount
+*/

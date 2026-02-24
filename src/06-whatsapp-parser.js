@@ -40,4 +40,103 @@
  */
 export function parseWhatsAppMessage(message) {
   // Your code here
+  if (typeof message !== "string") return null;
+
+
+  const commaIndex = message.indexOf(", ")
+  const dashIndex = message.indexOf(" - ");
+  const colonIndex = message.indexOf(": ", dashIndex)
+
+  if (commaIndex === -1 || dashIndex === -1 || colonIndex === -1) {
+    return null;
+  }
+
+
+  const msgTime = message.substring(commaIndex + 2, dashIndex)
+  const msgDate = message.substring(0, commaIndex);
+  const msgSender = message.substring(dashIndex + 3, colonIndex)
+  const msgTrim = message.substring(colonIndex + 2).trim();
+
+
+  //word count
+  const wordCount = msgTrim
+    .split(" ")
+    .filter(word => word.length > 0)
+    .length;
+
+  // sentiment
+  const lowerText = msgTrim.toLowerCase();
+  let sentiment = "neutral";
+
+  if (lowerText.includes("😂") ||
+    lowerText.includes(":)") ||
+    lowerText.includes("haha")
+  ) {
+    sentiment = "funny";
+  } else if (
+    lowerText.includes("❤") ||
+    lowerText.includes("love") ||
+    lowerText.includes("pyaar")
+  ) {
+    sentiment = "love";
+  }
+
+  return {
+    date: msgDate,
+    time: msgTime,
+    sender: msgSender,
+    text: msgTrim,
+    wordCount,
+    sentiment
+  }
+
 }
+
+
+/*
+
+How to use the methods:
+
+-> str.indexOf(searchElement) / str.indexOf(searchValue, startIndex)
+-> str.substring (indexStart) / str.substring (indexStart, indexEnd)
+-> str.includes(searchElement) / str.includes(searchElement, fromIndex)
+
+
+LOGIC:
+
+format => DD/MM/YYYY, HH:MM - Sender: Message
+
+Rule:
+1. agar input string nhi hai => null
+2. agar input ke andar "-" ya ":" nhi hai => null
+
+Main Methods 
+
+1. Date Logic
+starting: "0" - ending: ", "
+indexOf -> se comma ka index nikalo
+substring -> ka use krke 0 se comma tk date hai 
+
+2. Time Logic
+starting: ", " - ending: "- "
+indexOf -> se dash ka index nikalo
+substring -> ka use krke ", " se "- " tk time hai
+
+3. Sender name Logic
+starting: "- " - ending: ": "
+indexOf -> se colon ka index nikalo
+substring -> ka use krke "- " se ": " tk time hai
+
+4. Message Text Logic
+starting: ": " - ending: "-1 "
+trim() => krke string choti krdo
+substring -> ka use krke ": " last tk ka substring banao
+split("") -> krke message ka wordcount nikalo
+
+5. Sentiment check kro
+text ko lower krlo
+includes() -> use krke pata kro funny / love hai / neutral
+
+Akhir mein return krdo
+
+*/
